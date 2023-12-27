@@ -28,6 +28,7 @@ body {
   resize: none;
   /* user-select: none; */
   outline: none;
+  line-height: 4em;
 }
 
 textarea.content {

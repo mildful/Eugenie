@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 
@@ -7,33 +7,35 @@ function insertAt(str: string, index: number, what: string): string {
 }
 
 function App() {
+  const contentRef = useRef<HTMLDivElement>();
   const [content, setContent] = useState('I am a test text, please click me!');
-  const [displayContent, setDisplayContent] = useState('')
-  const [hideMode, setHideMode] = useState(false);
-  const [hiddenWords, setHiddenWords] = useState<string[]>([]);
+  const [displayContent, setDisplayContent] = useState('');
   const [fontSize, setFontSize] = useState(12);
+  const [isPrinting, setIsPrinting] = useState(false);
 
-  const handleKeydown = (hm: boolean, code: string) => {
-    if (hm && code === 'KeyC') {
+  const [hiddenWords, setHiddenWords] = useState<string[]>([]);
+
+  const handleKeydown = (key: string) => {
+    if (key === 'Alt' && contentRef.current) {
+      setContent(contentRef.current.innerText)
       onClickHandler();
     }
   }
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const proxy = (e: any) => handleKeydown(hideMode, e.code)
+    const proxy = (e: any) => handleKeydown(e.key)
     document.addEventListener("keydown", proxy, false);
     return () => {
       document.removeEventListener("keydown", proxy, false);
     }
-  }, [hideMode]);
+  }, []);
 
   useEffect(() => {
     setDisplayContent(content);
   }, [content]);
 
   useEffect(() => {
-    if (!hideMode) return;
     let obfuscatedContent = content;
     let overallOffset = 0;
     hiddenWords.sort((a, b) => +a.split('-')[0] - +b.split('-')[0]).forEach(str => {
@@ -47,17 +49,12 @@ function App() {
       overallOffset += 7 + 19;
     })
     setDisplayContent(obfuscatedContent)
-  }, [hiddenWords, content, hideMode]);
-
-  const onChangeHandler: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    if (hideMode) return;
-    setContent(e.target.value)
-  }
+  }, [hiddenWords, content]);
 
   const onClickHandler = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selection: any = document.getSelection();
-    if (!hideMode || selection === null) return;
+    if (selection === null) return;
 
     let subNode = selection.baseNode;
     let parentNode = selection.baseNode.parentNode;
@@ -106,40 +103,25 @@ function App() {
     }
   }
 
-  const switchMode = () => {
-    if (hideMode) {
-      //go to write
-      setContent(content.replace(/<br\/>/gm, '\n'))
-    } else {
-      // go to hide
-      setContent(content.replace(/\n/gm, ' <br/>'))
-    }
-    setHideMode(!hideMode);
-  }
+  // useEffect(() => {
+  //   if (isPrinting && contentRef.current)
+  //     setContent(contentRef.current.innerText)
+  // }, [isPrinting, contentRef])
 
   return (
     <>
       <div className="controls">
         <input type="number" value={fontSize} onChange={e => setFontSize(+e.target.value ?? 12)} />
-        <button onClick={switchMode}>mode: {hideMode?'cache':'ecriture'}</button>
-        {hideMode && <button onClick={onClickHandler}>cacher/montrer</button>}
+        <button onClick={() => setIsPrinting(!isPrinting)}>Mode impression : {isPrinting ? 'active' : 'desactive'}</button>
       </div>
 
-      {hideMode ? (
-        <div
-          className='content'
-          style={{fontSize}}
-          dangerouslySetInnerHTML={{ __html: displayContent }}
-        >
-        </div>
-      ) : (
-        <textarea
-          className='content'
-          style={{fontSize}}
-          value={content}
-          onChange={onChangeHandler}
-        />
-      )}
+      <div
+        className='content'
+        style={{fontSize}}
+        contentEditable={!isPrinting}
+        ref={contentRef}
+        dangerouslySetInnerHTML={{ __html: isPrinting ? new Array(4).fill(displayContent).join('<br/>') : displayContent }}
+      ></div>
     </>
   )
 }
