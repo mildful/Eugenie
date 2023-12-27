@@ -42,11 +42,19 @@ function App() {
       const info = str.split('-');
       const start = +info[0]
       const end = +info[1]
+      const delta = end - start;
+
+      let suffix = ''
+      if (delta > 15) {
+        suffix = ' xl'
+      } else if (delta > 10) {
+        suffix = ' l'
+      }
 
       obfuscatedContent = insertAt(obfuscatedContent, overallOffset + end, `</span>`);
-      obfuscatedContent = insertAt(obfuscatedContent, overallOffset + start, `<span class="hide">`);
+      obfuscatedContent = insertAt(obfuscatedContent, overallOffset + start, `<span class="hide${suffix}">`);
 
-      overallOffset += 7 + 19;
+      overallOffset += 7 + 19 + suffix.length;
     })
     setDisplayContent(obfuscatedContent)
   }, [hiddenWords, content]);
