@@ -51,7 +51,7 @@ textarea.content {
 .hide {
   color: lightgrey;
   position: relative;
-  padding: 0 2em 0 2em;
+  /* padding: 0 2em 0 2em; */
 }
 .hide.l { padding: 0 3em 0 3em;}
 .hide.xl { padding: 0 4em 0 4em;}
@@ -63,6 +63,15 @@ textarea.content {
   height: 1px;
   bottom: 25%;
   left:0;
+}
+
+p {
+  line-height: 104px;
+}
+p, p > .hide {
+  text-decoration: underline;
+  text-underline-offset: 50px;
+  text-decoration-color: black;
 }
 
 @media print {
