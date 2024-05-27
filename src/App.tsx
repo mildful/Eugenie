@@ -8,7 +8,7 @@ function insertAt(str: string, index: number, what: string): string {
 
 function App() {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [content, setContent] = useState('I am a test text, please click me! I am a test text, please click me!I am a test text, please click me!I am a test text, please click me!');
+  const [content, setContent] = useState('I am a test text, please click me!');
   const [displayContent, setDisplayContent] = useState('');
   const [fontSize, setFontSize] = useState(12);
   const [isPrinting, setIsPrinting] = useState(false);
